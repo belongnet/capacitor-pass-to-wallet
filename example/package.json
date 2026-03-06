@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@belongnet/capacitor-pass-to-wallet": "file:..",
+    "@capacitor/android": "^8.2.0",
     "@capacitor/core": "latest",
+    "@capacitor/ios": "^8.2.0",
     "@ionic/core": "^8.7.5",
     "@rdlabo/ionic-theme-ios26": "^2.0.2",
     "ionicons": "^7.4.0"
