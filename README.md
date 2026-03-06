@@ -1,4 +1,4 @@
-# capacitor-pass-to-wallet
+# [@belongnet/capacitor-pass-to-wallet](https://github.com/belongnet/capacitor-pass-to-wallet)
 
 Allows adding `.pkpass` files to Apple Wallet.
 
