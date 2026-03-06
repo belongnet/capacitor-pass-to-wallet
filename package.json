@@ -12,7 +12,8 @@
     "dist/",
     "ios/Sources",
     "ios/Tests",
-    "Package.swift"
+    "Package.swift",
+    "BelongnetCapacitorPassToWallet.podspec"
   ],
   "author": "Valentin Abundo",
   "license": "MIT",
