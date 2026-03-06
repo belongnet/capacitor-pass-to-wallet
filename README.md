@@ -16,6 +16,16 @@ bunx cap sync
 | 7.x               | [package (v7)](https://github.com/atroo/capacitor-pass-to-wallet) |
 | 8.x               | 8.x            |
 
+## How-to & tutorials
+
+- **[Adding Apple Wallet Passes](https://ionic.io/docs/tutorials/integrations/digitial-passes/apple-wallet-passes/adding)** — how to download a `.pkpass` and add it to Apple Wallet in a Capacitor app.
+- **[Creating Apple Wallet Passes](https://ionic.io/docs/tutorials/integrations/digitial-passes/apple-wallet-passes/creating)** — how to design, sign, and deliver passes from a backend (e.g. Node/Cloudflare Worker).
+
+## References
+
+- **[atroo/capacitor-pass-to-wallet](https://github.com/atroo/capacitor-pass-to-wallet)** — fork for Capacitor 7.x (`@atroo/capacitor-pass-to-wallet`).
+- **[NitnelavAH/capacitor-pass-to-wallet](https://github.com/NitnelavAH/capacitor-pass-to-wallet)** — original plugin (Capacitor 4–7).
+
 ## Requirements (Capacitor 8)
 
 - `@capacitor/core` `>=8.0.0`
@@ -119,3 +129,7 @@ Checks whether a pass already exists in Apple Wallet.
 | **`passExists`** | <code>boolean</code> | `true` if the pass is already available in Apple Wallet. |
 
 </docgen-api>
+
+---
+
+**License:** MIT

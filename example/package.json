@@ -1,24 +1,37 @@
 {
   "name": "@belongnet/capacitor-pass-to-wallet-example",
   "version": "1.0.0",
-  "description": "An Amazing Capacitor App",
-  "main": "index.js",
-  "keywords": [
-    "capacitor",
-    "mobile"
-  ],
+  "private": true,
+  "description": "Ionic Vue + Capacitor playground for @belongnet/capacitor-pass-to-wallet",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cap:sync": "bunx cap sync"
   },
   "dependencies": {
+    "@belongnet/capacitor-pass-to-wallet": "file:..",
+    "@capacitor/android": "^8.2.0",
     "@capacitor/core": "latest",
-    "@capacitor/camera": "latest",
-    "@capacitor/splash-screen": "latest",
-    "@belongnet/capacitor-pass-to-wallet": "file:.."
+    "@capacitor/haptics": "^8.0.1",
+    "@capacitor/ios": "^8.2.0",
+    "@ionic/vue": "^8.8.1",
+    "@ionic/vue-router": "^8.8.1",
+    "@rdlabo/ionic-theme-ios26": "^2.0.2",
+    "ionicons": "^8.0.13",
+    "vue": "^3.5.29",
+    "vue-router": "^5.0.3"
   },
   "devDependencies": {
-    "@capacitor/cli": "latest"
+    "@capacitor/cli": "latest",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "vite": "^7.1.7"
   },
-  "author": "",
-  "license": "ISC"
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2022": true
+    }
+  }
 }
