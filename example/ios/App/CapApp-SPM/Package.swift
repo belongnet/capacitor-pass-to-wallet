@@ -12,7 +12,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.2.0"),
-        .package(name: "BelongnetCapacitorPassToWallet", path: "../../../..")
+        .package(name: "BelongnetCapacitorPassToWallet", path: "../../../.."),
+        .package(name: "CapacitorHaptics", path: "../../../../node_modules/@capacitor/haptics")
     ],
     targets: [
         .target(
@@ -20,7 +21,8 @@ let package = Package(
             dependencies: [
                 .product(name: "Capacitor", package: "capacitor-swift-pm"),
                 .product(name: "Cordova", package: "capacitor-swift-pm"),
-                .product(name: "BelongnetCapacitorPassToWallet", package: "BelongnetCapacitorPassToWallet")
+                .product(name: "BelongnetCapacitorPassToWallet", package: "BelongnetCapacitorPassToWallet"),
+                .product(name: "CapacitorHaptics", package: "CapacitorHaptics")
             ]
         )
     ]

@@ -1,8 +1,13 @@
-## Ionic JavaScript + Capacitor Playground
+## Ionic Vue + Capacitor Playground
 
-This workspace package is a pure JavaScript Ionic playground for testing `@belongnet/capacitor-pass-to-wallet`.
+This workspace package is an Ionic Vue playground for testing `@belongnet/capacitor-pass-to-wallet`.
 
-The setup follows Ionic JavaScript quickstart structure (`@ionic/core`, custom elements pages, `ion-router`, Vite static copy for Ionic runtime).
+The example now uses:
+
+- `vue@3.5`
+- `@ionic/vue`
+- `@ionic/vue-router`
+- `vite`
 
 ### Run playground
 
@@ -23,4 +28,4 @@ bun run --filter @belongnet/capacitor-pass-to-wallet-example build
 bun run --filter @belongnet/capacitor-pass-to-wallet-example cap:sync
 ```
 
-Note: Wallet methods are iOS-specific. In web browser you should expect "not implemented" responses.
+Note: Wallet methods are iOS-specific. In web browser you should expect "not implemented" responses from the plugin methods.

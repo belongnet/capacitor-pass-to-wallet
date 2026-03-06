@@ -1,0 +1,275 @@
+<template>
+  <ion-page>
+    <ion-header translucent>
+      <ion-toolbar>
+        <ion-title>Pass To Wallet Playground</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content :fullscreen="true" color="light">
+      <div class="layout">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Passes (.pkpass)</ion-card-title>
+            <ion-card-subtitle>One flow for single and multiple passes</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-list lines="inset">
+              <ion-item>
+                <ion-label>Loaded passes</ion-label>
+                <ion-note slot="end">{{ loadedCount }}</ion-note>
+              </ion-item>
+              <ion-item>
+                <ion-label>Source</ion-label>
+                <ion-note slot="end" class="source-value">{{ loadedSourceLabel }}</ion-note>
+              </ion-item>
+            </ion-list>
+
+            <ion-segment v-model="sourceMode" class="source-segment">
+              <ion-segment-button value="url" content-id="source-url">
+                <ion-label>URL</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="file" content-id="source-file">
+                <ion-label>File</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="examples" content-id="source-examples">
+                <ion-label>Examples</ion-label>
+              </ion-segment-button>
+            </ion-segment>
+
+            <ion-segment-view class="source-view">
+              <ion-segment-content id="source-url">
+                <div class="source-pane">
+                  <ion-item>
+                    <ion-input
+                      v-model="passUrl"
+                      label="Pass URL"
+                      label-placement="stacked"
+                      placeholder="https://example.com/pass.pkpass"
+                    />
+                  </ion-item>
+                  <ion-button expand="block" @click="loadFromUrl" :disabled="isLoading">
+                    Load From URL
+                  </ion-button>
+                </div>
+              </ion-segment-content>
+
+              <ion-segment-content id="source-file">
+                <div class="source-pane">
+                  <ion-button expand="block" fill="outline" @click="openFilePicker" :disabled="isLoading">
+                    Choose .pkpass File(s)
+                  </ion-button>
+                  <ion-note class="pane-note">Select one file for single mode or several for multiple mode.</ion-note>
+                </div>
+              </ion-segment-content>
+
+              <ion-segment-content id="source-examples">
+                <div class="source-pane">
+                  <ion-button expand="block" fill="outline" @click="loadExample('example1')" :disabled="isLoading">
+                    Load example1.pkpass
+                  </ion-button>
+                  <ion-button expand="block" fill="outline" @click="loadExample('example2')" :disabled="isLoading">
+                    Load example2.pkpass
+                  </ion-button>
+                  <ion-button expand="block" @click="loadExample('both')" :disabled="isLoading">
+                    Load Both Examples
+                  </ion-button>
+                </div>
+              </ion-segment-content>
+            </ion-segment-view>
+
+            <div class="actions">
+              <ion-button expand="block" @click="addLoadedToWallet" :disabled="isLoading || loadedCount === 0">
+                {{ addActionLabel }}
+              </ion-button>
+              <ion-button
+                expand="block"
+                fill="outline"
+                @click="checkLoadedPassExists"
+                :disabled="isLoading || loadedCount !== 1"
+              >
+                Check Pass Exists (single only)
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Result</ion-card-title>
+            <ion-card-subtitle>{{ resultLabel }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <pre class="result">{{ resultJson }}</pre>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <ion-toast
+        :is-open="isToastOpen"
+        :message="toastMessage"
+        position="bottom"
+        :duration="2200"
+        @didDismiss="isToastOpen = false"
+      />
+
+      <input
+        ref="fileInputRef"
+        class="hidden-file-input"
+        type="file"
+        multiple
+        accept=".pkpass,application/vnd.apple.pkpass,application/octet-stream"
+        @change="onFilesSelected"
+      />
+    </ion-content>
+  </ion-page>
+</template>
+
+<script setup lang="ts">
+import { computed, nextTick, ref, watch } from 'vue';
+import {
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonNote,
+  IonPage,
+  IonSegment,
+  IonSegmentButton,
+  IonSegmentContent,
+  IonSegmentView,
+  IonToast,
+  IonTitle,
+  IonToolbar,
+} from '@ionic/vue';
+import { useWalletActions, type ExampleKey } from '../composables/useWalletActions';
+
+const {
+  passUrl,
+  loadedCount,
+  loadedSourceLabel,
+  addActionLabel,
+  resultLabel,
+  resultVersion,
+  resultPayload,
+  isLoading,
+  loadFromUrl,
+  loadFromFiles,
+  loadFromExamples,
+  addLoadedToWallet,
+  checkLoadedPassExists,
+} = useWalletActions();
+
+const isToastOpen = ref(false);
+const toastMessage = ref('');
+const sourceMode = ref<'url' | 'file' | 'examples'>('url');
+const fileInputRef = ref<HTMLInputElement | null>(null);
+
+const resultJson = computed(() => JSON.stringify(resultPayload.value, null, 2));
+
+watch(resultVersion, async () => {
+  const payloadMessage = resultPayload.value?.message;
+  const nextMessage =
+    typeof payloadMessage === 'string' && payloadMessage.trim().length > 0
+      ? payloadMessage
+      : `${resultLabel.value}`;
+
+  toastMessage.value = nextMessage;
+  isToastOpen.value = false;
+  await nextTick();
+  isToastOpen.value = true;
+});
+
+function openFilePicker() {
+  fileInputRef.value?.click();
+}
+
+async function onFilesSelected(event: Event) {
+  const target = event.target as HTMLInputElement | null;
+  await loadFromFiles(target?.files);
+  if (target) {
+    target.value = '';
+  }
+}
+
+async function loadExample(value: ExampleKey | 'both') {
+  if (value === 'both') {
+    await loadFromExamples(['example1', 'example2']);
+    return;
+  }
+  await loadFromExamples([value]);
+}
+</script>
+
+<style scoped>
+.layout {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 12px 12px 24px;
+}
+
+.source-value {
+  max-width: 62%;
+  text-align: right;
+}
+
+.source-segment {
+  margin-top: 12px;
+}
+
+.source-view {
+  margin-top: 10px;
+  min-height: 192px;
+  border-radius: 10px;
+  background: var(--ion-color-step-100);
+}
+
+.source-pane {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.pane-note {
+  display: block;
+  margin-top: 4px;
+}
+
+.actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.result {
+  margin: 0;
+  max-height: 280px;
+  overflow: auto;
+  background: var(--ion-color-step-100);
+  padding: 10px;
+  border-radius: 8px;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    'Liberation Mono',
+    'Courier New',
+    monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.hidden-file-input {
+  display: none;
+}
+</style>
