@@ -5,8 +5,8 @@ Allows adding `.pkpass` files to Apple Wallet.
 ## Install
 
 ```bash
-npm install @belongnet/capacitor-pass-to-wallet
-npx cap sync
+bun add @belongnet/capacitor-pass-to-wallet
+bunx cap sync
 ```
 
 ## Compatibility
@@ -30,6 +30,7 @@ npx cap sync
 * [`addToWallet(...)`](#addtowallet)
 * [`addMultipleToWallet(...)`](#addmultipletowallet)
 * [`passExists(...)`](#passexists)
+* [Interfaces](#interfaces)
 
 </docgen-index>
 
@@ -39,14 +40,16 @@ npx cap sync
 ### addToWallet(...)
 
 ```typescript
-addToWallet(options: { base64: string; }) => Promise<{ value: string; }>
+addToWallet(options: AddToWalletOptions) => Promise<AddToWalletResult>
 ```
 
-| Param         | Type                             |
-| ------------- | -------------------------------- |
-| **`options`** | <code>{ base64: string; }</code> |
+Opens Apple Wallet sheet for a single `.pkpass`.
 
-**Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
+| Param         | Type                                                              |
+| ------------- | ----------------------------------------------------------------- |
+| **`options`** | <code><a href="#addtowalletoptions">AddToWalletOptions</a></code> |
+
+**Returns:** <code>Promise&lt;<a href="#addtowalletresult">AddToWalletResult</a>&gt;</code>
 
 --------------------
 
@@ -54,14 +57,16 @@ addToWallet(options: { base64: string; }) => Promise<{ value: string; }>
 ### addMultipleToWallet(...)
 
 ```typescript
-addMultipleToWallet(options: { base64: string[]; }) => Promise<{ value: string; }>
+addMultipleToWallet(options: AddMultipleToWalletOptions) => Promise<AddToWalletResult>
 ```
 
-| Param         | Type                               |
-| ------------- | ---------------------------------- |
-| **`options`** | <code>{ base64: string[]; }</code> |
+Opens Apple Wallet sheet for multiple `.pkpass` files.
 
-**Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
+| Param         | Type                                                                              |
+| ------------- | --------------------------------------------------------------------------------- |
+| **`options`** | <code><a href="#addmultipletowalletoptions">AddMultipleToWalletOptions</a></code> |
+
+**Returns:** <code>Promise&lt;<a href="#addtowalletresult">AddToWalletResult</a>&gt;</code>
 
 --------------------
 
@@ -69,15 +74,48 @@ addMultipleToWallet(options: { base64: string[]; }) => Promise<{ value: string; 
 ### passExists(...)
 
 ```typescript
-passExists(options: { base64: string; }) => Promise<{ passExists: boolean; }>
+passExists(options: AddToWalletOptions) => Promise<PassExistsResult>
 ```
 
-| Param         | Type                             |
-| ------------- | -------------------------------- |
-| **`options`** | <code>{ base64: string; }</code> |
+Checks whether a pass already exists in Apple Wallet.
 
-**Returns:** <code>Promise&lt;{ passExists: boolean; }&gt;</code>
+| Param         | Type                                                              |
+| ------------- | ----------------------------------------------------------------- |
+| **`options`** | <code><a href="#addtowalletoptions">AddToWalletOptions</a></code> |
+
+**Returns:** <code>Promise&lt;<a href="#passexistsresult">PassExistsResult</a>&gt;</code>
 
 --------------------
+
+
+### Interfaces
+
+
+#### AddToWalletResult
+
+| Prop        | Type                | Description                                                           |
+| ----------- | ------------------- | --------------------------------------------------------------------- |
+| **`value`** | <code>string</code> | Operation status. Returns `"added"` when the pass sheet is presented. |
+
+
+#### AddToWalletOptions
+
+| Prop         | Type                | Description                            |
+| ------------ | ------------------- | -------------------------------------- |
+| **`base64`** | <code>string</code> | Base64-encoded `.pkpass` file content. |
+
+
+#### AddMultipleToWalletOptions
+
+| Prop         | Type                  | Description                                     |
+| ------------ | --------------------- | ----------------------------------------------- |
+| **`base64`** | <code>string[]</code> | List of base64-encoded `.pkpass` file contents. |
+
+
+#### PassExistsResult
+
+| Prop             | Type                 | Description                                              |
+| ---------------- | -------------------- | -------------------------------------------------------- |
+| **`passExists`** | <code>boolean</code> | `true` if the pass is already available in Apple Wallet. |
 
 </docgen-api>
