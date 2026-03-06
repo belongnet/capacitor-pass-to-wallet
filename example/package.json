@@ -14,11 +14,18 @@
     "@belongnet/capacitor-pass-to-wallet": "file:..",
     "@capacitor/core": "latest",
     "@ionic/core": "^8.7.5",
+    "@rdlabo/ionic-theme-ios26": "^2.0.2",
     "ionicons": "^7.4.0"
   },
   "devDependencies": {
     "@capacitor/cli": "latest",
     "vite": "^7.1.7",
     "vite-plugin-static-copy": "^3.1.4"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2022": true
+    }
   }
 }

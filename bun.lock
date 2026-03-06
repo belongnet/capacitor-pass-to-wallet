@@ -32,6 +32,7 @@
         "@belongnet/capacitor-pass-to-wallet": "file:..",
         "@capacitor/core": "latest",
         "@ionic/core": "^8.7.5",
+        "@rdlabo/ionic-theme-ios26": "^2.0.2",
         "ionicons": "^7.4.0",
       },
       "devDependencies": {
@@ -167,6 +168,8 @@
     "@nodelib/fs.stat": ["@nodelib/fs.stat@2.0.5", "", {}, "sha512-RkhPPp2zrqDAQA/2jNhnztcPAlv64XdhIp7a7454A5ovI7Bukxgt7MX7udwAu3zg1DcpPU0rz3VV1SeaqvY4+A=="],
 
     "@nodelib/fs.walk": ["@nodelib/fs.walk@1.2.8", "", { "dependencies": { "@nodelib/fs.scandir": "2.1.5", "fastq": "^1.6.0" } }, "sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg=="],
+
+    "@rdlabo/ionic-theme-ios26": ["@rdlabo/ionic-theme-ios26@2.2.1", "", { "peerDependencies": { "@ionic/core": "> 8.0.0" } }, "sha512-Wb9VOTkcAYseGAvshJKeZt/FqfN5a3WEHXRPSBdEt0g7wZsr8f4Mbh54hxZomfGFyd1n1D/K9oZDxw+LYpTGkg=="],
 
     "@rollup/rollup-android-arm-eabi": ["@rollup/rollup-android-arm-eabi@4.59.0", "", { "os": "android", "cpu": "arm" }, "sha512-upnNBkA6ZH2VKGcBj9Fyl9IGNPULcjXRlg0LLeaioQWueH30p6IXtJEbKAgvyv+mJaMxSm1l6xwDXYjpEMiLMg=="],
 
