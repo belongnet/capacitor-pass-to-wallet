@@ -13,10 +13,7 @@ npx cap sync
 
 | Capacitor Version | Plugin Version |
 | ----------------- | -------------- |
-| 4.x               | 1.x            |
-| 5.x               | 2.x            |
-| 6.x               | 3.x            |
-| 7.x               | 7.x            |
+| 7.x               | [package (v7)](https://github.com/atroo/capacitor-pass-to-wallet) |
 | 8.x               | 8.x            |
 
 ## Requirements (Capacitor 8)
