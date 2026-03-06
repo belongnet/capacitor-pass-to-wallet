@@ -1,5 +1,5 @@
 {
-  "name": "@atroo/capacitor-pass-to-wallet",
+  "name": "@belongnet/capacitor-pass-to-wallet",
   "version": "8.0.0",
   "description": "Allow to add .pkpass files to Apple Wallet",
   "main": "dist/plugin.cjs.js",
@@ -11,16 +11,16 @@
     "android/build.gradle",
     "dist/",
     "ios/Plugin/",
-    "AtrooCapacitorPassToWallet.podspec"
+    "BelongnetCapacitorPassToWallet.podspec"
   ],
   "author": "Valentin Abundo",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/atroo/capacitor-pass-to-wallet.git"
+    "url": "git+https://github.com/belongnet/capacitor-pass-to-wallet.git"
   },
   "bugs": {
-    "url": "https://github.com/atroo/capacitor-pass-to-wallet/issues"
+    "url": "https://github.com/belongnet/capacitor-pass-to-wallet/issues"
   },
   "keywords": [
     "capacitor",
@@ -81,7 +81,7 @@
       "src": "android"
     }
   },
-  "homepage": "https://github.com/atroo/capacitor-pass-to-wallet#readme",
+  "homepage": "https://github.com/belongnet/capacitor-pass-to-wallet#readme",
   "directories": {
     "example": "example"
   }

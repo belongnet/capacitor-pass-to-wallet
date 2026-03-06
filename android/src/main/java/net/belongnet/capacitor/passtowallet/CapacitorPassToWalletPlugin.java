@@ -1,4 +1,4 @@
-package de.atroo.capacitor.passtowallet;
+package net.belongnet.capacitor.passtowallet;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
