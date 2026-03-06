@@ -3,7 +3,7 @@
 Allows adding `.pkpass` files to Apple Wallet.
 
 <div align="center">
-  <img src="demo.gif" alt="Demo" height="250">
+  <img src="demo.gif" alt="Demo" height="350">
 </div>
 
 ## Install
