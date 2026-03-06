@@ -1,4 +1,4 @@
-package de.atroo.capacitor.passtowallet;
+package net.belongnet.capacitor.passtowallet;
 
 import android.util.Log;
 
@@ -18,5 +18,4 @@ public class CapacitorPassToWallet {
         Log.i("Not implememted on Android", value);
         return value;
     }
-    
 }

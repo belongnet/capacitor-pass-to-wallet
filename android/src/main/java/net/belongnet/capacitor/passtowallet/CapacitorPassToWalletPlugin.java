@@ -1,4 +1,4 @@
-package de.atroo.capacitor.passtowallet;
+package net.belongnet.capacitor.passtowallet;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -11,7 +11,6 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 public class CapacitorPassToWalletPlugin extends Plugin {
 
     private CapacitorPassToWallet implementation = new CapacitorPassToWallet();
-
 
     @PluginMethod
     public void addToWallet(PluginCall call) {
