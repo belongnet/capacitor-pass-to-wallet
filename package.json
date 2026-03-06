@@ -25,6 +25,9 @@
     "type": "git",
     "url": "git+https://github.com/belongnet/capacitor-pass-to-wallet.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://github.com/belongnet/capacitor-pass-to-wallet/issues"
   },

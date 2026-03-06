@@ -2,6 +2,10 @@
 
 Allows adding `.pkpass` files to Apple Wallet.
 
+<div align="center">
+  <img src="demo.gif" alt="Demo" style="max-height: 400px;">
+</div>
+
 ## Install
 
 ```bash
