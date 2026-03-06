@@ -1,8 +1,8 @@
 {
   "appId": "com.example.plugin",
-  "appName": "example",
-  "bundledWebRuntime": true,
-  "webDir": "www",
+  "appName": "Capacitor Pass To Wallet Playground",
+  "bundledWebRuntime": false,
+  "webDir": "dist",
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 0
