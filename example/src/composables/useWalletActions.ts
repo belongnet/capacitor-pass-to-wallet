@@ -1,14 +1,35 @@
-import { computed, ref } from 'vue';
 import { CapacitorPassToWallet } from '@belongnet/capacitor-pass-to-wallet';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { computed, ref } from 'vue';
 import { fileToBase64, normalizeBase64, passUrlToBase64 } from '../utils/pass';
 
 type ResultPayload = Record<string, unknown>;
 export type ExampleKey = 'example1' | 'example2';
+type LoadedMode = 'base64' | 'filePath' | null;
+
+interface UseWalletActionsReturn {
+  passUrl: ReturnType<typeof ref<string>>;
+  loadedCount: ReturnType<typeof computed<number>>;
+  loadedSourceLabel: ReturnType<typeof ref<string>>;
+  addActionLabel: ReturnType<typeof computed<string>>;
+  resultLabel: ReturnType<typeof ref<string>>;
+  resultVersion: ReturnType<typeof ref<number>>;
+  resultPayload: ReturnType<typeof ref<ResultPayload>>;
+  isLoading: ReturnType<typeof ref<boolean>>;
+  loadFromUrl: () => Promise<void>;
+  loadFromFiles: (files: File[] | FileList | null | undefined) => Promise<void>;
+  loadFromExamples: (exampleKeys: ExampleKey[]) => Promise<void>;
+  loadExampleUrisFromCache: (exampleKeys: ExampleKey[]) => Promise<void>;
+  addLoadedToWallet: () => Promise<void>;
+  checkLoadedPassExists: () => Promise<void>;
+}
 
 const EXAMPLE_FILES: Record<ExampleKey, string> = {
   example1: '/example1.pkpass',
   example2: '/example2.pkpass',
 };
+
+const EXAMPLE_CACHE_FOLDER = 'wallet-example-passes';
 
 function toErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -21,10 +42,14 @@ function normalizeList(base64List: string[]): string[] {
   return base64List.map((item) => normalizeBase64(item)).filter(Boolean);
 }
 
-export function useWalletActions() {
+export function useWalletActions(): UseWalletActionsReturn {
   const passUrl = ref('');
   const loadedBase64 = ref<string[]>([]);
-  const loadedCount = computed(() => loadedBase64.value.length);
+  const loadedFilePaths = ref<string[]>([]);
+  const loadedMode = ref<LoadedMode>(null);
+  const loadedCount = computed(() =>
+    loadedMode.value === 'filePath' ? loadedFilePaths.value.length : loadedBase64.value.length,
+  );
   const loadedSourceLabel = ref('No pass loaded');
   const addActionLabel = computed(() => (loadedCount.value <= 1 ? 'Add To Wallet' : 'Add Multiple To Wallet'));
   const resultLabel = ref('Ready');
@@ -55,15 +80,38 @@ export function useWalletActions() {
     }
   }
 
+  function clearLoadedValues() {
+    loadedBase64.value = [];
+    loadedFilePaths.value = [];
+    loadedMode.value = null;
+  }
+
   function setLoadedPasses(base64List: string[], sourceLabel: string) {
+    clearLoadedValues();
     loadedBase64.value = normalizeList(base64List);
+    loadedMode.value = 'base64';
     loadedSourceLabel.value = sourceLabel;
   }
 
-  function getLoadedPasses(): string[] {
+  function setLoadedFileUris(filePaths: string[], sourceLabel: string) {
+    clearLoadedValues();
+    loadedFilePaths.value = filePaths.map((value) => String(value || '').trim()).filter(Boolean);
+    loadedMode.value = 'filePath';
+    loadedSourceLabel.value = sourceLabel;
+  }
+
+  function getLoadedBase64Passes(): string[] {
     const normalized = normalizeList(loadedBase64.value);
     if (!normalized.length) {
       throw new Error('Load at least one .pkpass first');
+    }
+    return normalized;
+  }
+
+  function getLoadedFilePaths(): string[] {
+    const normalized = loadedFilePaths.value.map((item) => String(item || '').trim()).filter(Boolean);
+    if (!normalized.length) {
+      throw new Error('Load at least one .pkpass file URI first');
     }
     return normalized;
   }
@@ -125,27 +173,96 @@ export function useWalletActions() {
     });
   }
 
+  async function cacheExampleAsFileUri(key: ExampleKey): Promise<{ key: ExampleKey; path: string; uri: string }> {
+    const sourcePath = EXAMPLE_FILES[key];
+    const base64 = await passUrlToBase64(sourcePath);
+    const fileName = `${key}-${Date.now()}-${Math.floor(Math.random() * 10000)}.pkpass`;
+    const relativePath = `${EXAMPLE_CACHE_FOLDER}/${fileName}`;
+
+    await Filesystem.writeFile({
+      path: relativePath,
+      directory: Directory.Cache,
+      data: base64,
+      recursive: true,
+    });
+
+    const { uri } = await Filesystem.getUri({
+      path: relativePath,
+      directory: Directory.Cache,
+    });
+
+    return { key, path: relativePath, uri };
+  }
+
+  async function loadExampleUrisFromCache(exampleKeys: ExampleKey[]) {
+    await runAction('load(example:file-uri)', async () => {
+      const keys = Array.from(new Set(exampleKeys));
+      if (!keys.length) {
+        throw new Error('Choose at least one test example');
+      }
+
+      const files = await Promise.all(keys.map((key) => cacheExampleAsFileUri(key)));
+      setLoadedFileUris(
+        files.map((item) => item.uri),
+        files.length === 1 ? `Loaded file URI from cache: ${files[0].path}` : `Loaded ${files.length} file URIs from cache`,
+      );
+
+      return {
+        message: `Saved ${files.length} file(s) to cache and loaded as file URI`,
+        files,
+      };
+    });
+  }
+
   async function addLoadedToWallet() {
     await runAction('addToWallet(auto)', async () => {
-      const base64 = getLoadedPasses();
+      if (loadedMode.value === 'filePath') {
+        const filePaths = getLoadedFilePaths();
+        if (filePaths.length === 1) {
+          const result = await CapacitorPassToWallet.addToWallet({ filePath: filePaths[0] });
+          return { inputMode: 'filePath', mode: 'single', filePath: filePaths[0], ...result };
+        }
+
+        const result = await CapacitorPassToWallet.addMultipleToWallet({ filePaths });
+        return { inputMode: 'filePath', mode: 'multiple', count: filePaths.length, filePaths, ...result };
+      }
+
+      const base64 = getLoadedBase64Passes();
       if (base64.length === 1) {
         const result = await CapacitorPassToWallet.addToWallet({ base64: base64[0] });
-        return { mode: 'single', ...result };
+        return { inputMode: 'base64', mode: 'single', ...result };
       }
 
       const result = await CapacitorPassToWallet.addMultipleToWallet({ base64 });
-      return { mode: 'multiple', count: base64.length, ...result };
+      return { inputMode: 'base64', mode: 'multiple', count: base64.length, ...result };
     });
   }
 
   async function checkLoadedPassExists() {
     await runAction('passExists', async () => {
-      const base64 = getLoadedPasses();
+      if (loadedMode.value === 'filePath') {
+        const filePaths = getLoadedFilePaths();
+        if (filePaths.length !== 1) {
+          throw new Error('passExists requires exactly one loaded pass');
+        }
+        const result = await CapacitorPassToWallet.passExists({ filePath: filePaths[0] });
+        return {
+          inputMode: 'filePath',
+          filePath: filePaths[0],
+          ...result,
+          message: result.passExists
+            ? 'Pass already exists in Apple Wallet.'
+            : 'Pass was not found in Apple Wallet. You can add it now.',
+        };
+      }
+
+      const base64 = getLoadedBase64Passes();
       if (base64.length !== 1) {
         throw new Error('passExists requires exactly one loaded pass');
       }
       const result = await CapacitorPassToWallet.passExists({ base64: base64[0] });
       return {
+        inputMode: 'base64',
         ...result,
         message: result.passExists
           ? 'Pass already exists in Apple Wallet.'
@@ -166,6 +283,7 @@ export function useWalletActions() {
     loadFromUrl,
     loadFromFiles,
     loadFromExamples,
+    loadExampleUrisFromCache,
     addLoadedToWallet,
     checkLoadedPassExists,
   };

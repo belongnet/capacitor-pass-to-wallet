@@ -1,15 +1,33 @@
 export interface AddToWalletOptions {
   /**
    * Base64-encoded `.pkpass` file content.
+   *
+   * Optional when `filePath` is provided.
    */
-  base64: string;
+  base64?: string;
+
+  /**
+   * Native file path/URI to a `.pkpass` file (for example from `Filesystem.getUri`).
+   *
+   * Optional when `base64` is provided.
+   */
+  filePath?: string;
 }
 
 export interface AddMultipleToWalletOptions {
   /**
    * List of base64-encoded `.pkpass` file contents.
+   *
+   * Optional when `filePaths` is provided.
    */
-  base64: string[];
+  base64?: string[];
+
+  /**
+   * List of native file paths/URIs to `.pkpass` files.
+   *
+   * Optional when `base64` is provided.
+   */
+  filePaths?: string[];
 }
 
 export interface AddToWalletResult {

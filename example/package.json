@@ -5,15 +5,18 @@
   "description": "Ionic Vue + Capacitor playground for @belongnet/capacitor-pass-to-wallet",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "cap:sync": "bunx cap sync"
+    "cap:sync": "bunx cap sync",
+    "ios:hot": "bunx cap run ios -l --port 5173",
+    "ios:hot:dev": "bun run dev & bun run ios:hot"
   },
   "dependencies": {
     "@belongnet/capacitor-pass-to-wallet": "file:..",
     "@capacitor/android": "^8.2.0",
     "@capacitor/core": "latest",
+    "@capacitor/filesystem": "^8.0.0",
     "@capacitor/haptics": "^8.0.1",
     "@capacitor/ios": "^8.2.0",
     "@ionic/vue": "^8.8.1",

@@ -37,6 +37,61 @@ bunx cap sync
 - Android `minSdkVersion`: `24+`
 - Android build defaults in this plugin: `compileSdkVersion 36`, `targetSdkVersion 36`, Java `21`
 
+## What's new
+
+- `addToWallet` and `passExists` now support either `base64` or `filePath`.
+- `addMultipleToWallet` now supports either `base64[]` or `filePaths[]`.
+- Passing file paths avoids base64 conversion overhead when the pass file is already in local storage.
+
+## Usage
+
+### Add pass from base64 (existing behavior)
+
+```ts
+import { CapacitorPassToWallet } from '@belongnet/capacitor-pass-to-wallet';
+
+await CapacitorPassToWallet.addToWallet({
+  base64: passBase64,
+});
+```
+
+### Add pass from local file path/URI (new)
+
+```ts
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { CapacitorPassToWallet } from '@belongnet/capacitor-pass-to-wallet';
+
+const { uri } = await Filesystem.getUri({
+  directory: Directory.Cache,
+  path: 'passes/example.pkpass',
+});
+
+await CapacitorPassToWallet.addToWallet({
+  filePath: uri,
+});
+```
+
+### Add multiple passes from local file URIs
+
+```ts
+await CapacitorPassToWallet.addMultipleToWallet({
+  filePaths: [uri1, uri2],
+});
+```
+
+### Check if pass already exists
+
+```ts
+const result = await CapacitorPassToWallet.passExists({
+  filePath: uri,
+});
+
+console.log(result.passExists);
+```
+
+> [!NOTE]
+> `filePath`/`filePaths` support is implemented on iOS. Android implementation in this repository is currently a placeholder.
+
 ## API
 
 <docgen-index>
@@ -114,16 +169,18 @@ Checks whether a pass already exists in Apple Wallet.
 
 #### AddToWalletOptions
 
-| Prop         | Type                | Description                            |
-| ------------ | ------------------- | -------------------------------------- |
-| **`base64`** | <code>string</code> | Base64-encoded `.pkpass` file content. |
+| Prop           | Type                | Description                                                                                                          |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **`base64`**   | <code>string</code> | Base64-encoded `.pkpass` file content. Optional when `filePath` is provided.                                         |
+| **`filePath`** | <code>string</code> | Native file path/URI to a `.pkpass` file (for example from `Filesystem.getUri`). Optional when `base64` is provided. |
 
 
 #### AddMultipleToWalletOptions
 
-| Prop         | Type                  | Description                                     |
-| ------------ | --------------------- | ----------------------------------------------- |
-| **`base64`** | <code>string[]</code> | List of base64-encoded `.pkpass` file contents. |
+| Prop            | Type                  | Description                                                                            |
+| --------------- | --------------------- | -------------------------------------------------------------------------------------- |
+| **`base64`**    | <code>string[]</code> | List of base64-encoded `.pkpass` file contents. Optional when `filePaths` is provided. |
+| **`filePaths`** | <code>string[]</code> | List of native file paths/URIs to `.pkpass` files. Optional when `base64` is provided. |
 
 
 #### PassExistsResult

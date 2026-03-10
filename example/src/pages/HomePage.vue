@@ -65,6 +65,7 @@
 
               <ion-segment-content id="source-examples">
                 <div class="source-pane">
+                  <ion-note class="pane-note">Base64 flow (legacy example):</ion-note>
                   <ion-button expand="block" fill="outline" @click="loadExample('example1')" :disabled="isLoading">
                     Load example1.pkpass
                   </ion-button>
@@ -73,6 +74,28 @@
                   </ion-button>
                   <ion-button expand="block" @click="loadExample('both')" :disabled="isLoading">
                     Load Both Examples
+                  </ion-button>
+                  <ion-note class="pane-note">File URI flow (save to Cache first):</ion-note>
+                  <ion-button
+                    expand="block"
+                    fill="outline"
+                    color="medium"
+                    @click="loadCachedExample('example1')"
+                    :disabled="isLoading"
+                  >
+                    Save + Load file URI (example1)
+                  </ion-button>
+                  <ion-button
+                    expand="block"
+                    fill="outline"
+                    color="medium"
+                    @click="loadCachedExample('example2')"
+                    :disabled="isLoading"
+                  >
+                    Save + Load file URI (example2)
+                  </ion-button>
+                  <ion-button expand="block" color="medium" @click="loadCachedExample('both')" :disabled="isLoading">
+                    Save + Load both file URIs
                   </ion-button>
                 </div>
               </ion-segment-content>
@@ -164,6 +187,7 @@ const {
   loadFromUrl,
   loadFromFiles,
   loadFromExamples,
+  loadExampleUrisFromCache,
   addLoadedToWallet,
   checkLoadedPassExists,
 } = useWalletActions();
@@ -206,6 +230,14 @@ async function loadExample(value: ExampleKey | 'both') {
     return;
   }
   await loadFromExamples([value]);
+}
+
+async function loadCachedExample(value: ExampleKey | 'both') {
+  if (value === 'both') {
+    await loadExampleUrisFromCache(['example1', 'example2']);
+    return;
+  }
+  await loadExampleUrisFromCache([value]);
 }
 </script>
 
