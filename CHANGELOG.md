@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v8.0.2
+
+[compare changes](https://github.com/belongnet/capacitor-pass-to-wallet/compare/v8.0.1...v8.0.2)
+
+### 🚀 Enhancements
+
+- Support file path wallet inputs and cache URI flow ([7712413](https://github.com/belongnet/capacitor-pass-to-wallet/commit/7712413))
+
+### ❤️ Contributors
+
+- Reslear ([@reslear](https://github.com/reslear))
+
 ## v8.0.1
 
 [compare changes](https://github.com/belongnet/capacitor-pass-to-wallet/compare/7.0.0...v8.0.1)
