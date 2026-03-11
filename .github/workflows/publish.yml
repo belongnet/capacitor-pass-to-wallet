@@ -3,6 +3,11 @@ name: Release and publish to npm
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - "ios/**"
+      - "android/**"
+
   workflow_dispatch:
 
 permissions:

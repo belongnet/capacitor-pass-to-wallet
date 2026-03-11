@@ -26,18 +26,74 @@
             </ion-list>
 
             <ion-segment v-model="sourceMode" class="source-segment">
-              <ion-segment-button value="url" content-id="source-url">
-                <ion-label>URL</ion-label>
+              <ion-segment-button value="base64" content-id="source-base64">
+                <ion-label>Base64</ion-label>
+              </ion-segment-button>
+              <ion-segment-button value="file-uri" content-id="source-file-uri">
+                <ion-label>File URI</ion-label>
               </ion-segment-button>
               <ion-segment-button value="file" content-id="source-file">
                 <ion-label>File</ion-label>
               </ion-segment-button>
-              <ion-segment-button value="examples" content-id="source-examples">
-                <ion-label>Examples</ion-label>
+              <ion-segment-button value="url" content-id="source-url">
+                <ion-label>URL</ion-label>
               </ion-segment-button>
             </ion-segment>
 
             <ion-segment-view class="source-view">
+              <ion-segment-content id="source-base64">
+                <div class="source-pane">
+                  <ion-note class="pane-note">Base64 flow (legacy example):</ion-note>
+                  <ion-button size="small" expand="block" fill="outline" @click="loadExample('example1')" :disabled="isLoading">
+                    Load example1.pkpass
+                  </ion-button>
+                  <ion-button size="small" expand="block" fill="outline" @click="loadExample('example2')" :disabled="isLoading">
+                    Load example2.pkpass
+                  </ion-button>
+                  <ion-button size="small" expand="block" @click="loadExample('both')" :disabled="isLoading">
+                    Load Both Examples
+                  </ion-button>
+                </div>
+              </ion-segment-content>
+
+              <ion-segment-content id="source-file-uri">
+                <div class="source-pane">
+                  <ion-note class="pane-note">File URI flow (save to Cache first):</ion-note>
+                  <ion-button
+                    size="small"
+                    expand="block"
+                    fill="outline"
+                    color="medium"
+                    @click="loadCachedExample('example1')"
+                    :disabled="isLoading"
+                  >
+                    Save + Load file URI (example1)
+                  </ion-button>
+                  <ion-button
+                    size="small"
+                    expand="block"
+                    fill="outline"
+                    color="medium"
+                    @click="loadCachedExample('example2')"
+                    :disabled="isLoading"
+                  >
+                    Save + Load file URI (example2)
+                  </ion-button>
+                  <ion-button size="small" expand="block" color="medium" @click="loadCachedExample('both')" :disabled="isLoading">
+                    Save + Load both file URIs
+                  </ion-button>
+                </div>
+              </ion-segment-content>
+
+              <ion-segment-content id="source-file">
+                <div class="source-pane">
+                  <ion-button size="small" expand="block" fill="outline" @click="openFilePicker" :disabled="isLoading">
+                    Choose .pkpass File(s)
+                  </ion-button>
+                  <ion-note class="pane-note">Select one file for single mode or several for multiple mode.</ion-note>
+                </div>
+              </ion-segment-content>
+
               <ion-segment-content id="source-url">
                 <div class="source-pane">
                   <ion-item>
@@ -48,70 +104,72 @@
                       placeholder="https://example.com/pass.pkpass"
                     />
                   </ion-item>
-                  <ion-button expand="block" @click="loadFromUrl" :disabled="isLoading">
+                  <ion-button size="small" expand="block" @click="loadFromUrl" :disabled="isLoading">
                     Load From URL
-                  </ion-button>
-                </div>
-              </ion-segment-content>
-
-              <ion-segment-content id="source-file">
-                <div class="source-pane">
-                  <ion-button expand="block" fill="outline" @click="openFilePicker" :disabled="isLoading">
-                    Choose .pkpass File(s)
-                  </ion-button>
-                  <ion-note class="pane-note">Select one file for single mode or several for multiple mode.</ion-note>
-                </div>
-              </ion-segment-content>
-
-              <ion-segment-content id="source-examples">
-                <div class="source-pane">
-                  <ion-note class="pane-note">Base64 flow (legacy example):</ion-note>
-                  <ion-button expand="block" fill="outline" @click="loadExample('example1')" :disabled="isLoading">
-                    Load example1.pkpass
-                  </ion-button>
-                  <ion-button expand="block" fill="outline" @click="loadExample('example2')" :disabled="isLoading">
-                    Load example2.pkpass
-                  </ion-button>
-                  <ion-button expand="block" @click="loadExample('both')" :disabled="isLoading">
-                    Load Both Examples
-                  </ion-button>
-                  <ion-note class="pane-note">File URI flow (save to Cache first):</ion-note>
-                  <ion-button
-                    expand="block"
-                    fill="outline"
-                    color="medium"
-                    @click="loadCachedExample('example1')"
-                    :disabled="isLoading"
-                  >
-                    Save + Load file URI (example1)
-                  </ion-button>
-                  <ion-button
-                    expand="block"
-                    fill="outline"
-                    color="medium"
-                    @click="loadCachedExample('example2')"
-                    :disabled="isLoading"
-                  >
-                    Save + Load file URI (example2)
-                  </ion-button>
-                  <ion-button expand="block" color="medium" @click="loadCachedExample('both')" :disabled="isLoading">
-                    Save + Load both file URIs
                   </ion-button>
                 </div>
               </ion-segment-content>
             </ion-segment-view>
 
             <div class="actions">
-              <ion-button expand="block" @click="addLoadedToWallet" :disabled="isLoading || loadedCount === 0">
+              <ion-button size="small" expand="block" @click="addLoadedToWallet" :disabled="isLoading || loadedCount === 0">
                 {{ addActionLabel }}
               </ion-button>
               <ion-button
+                size="small"
                 expand="block"
                 fill="outline"
                 @click="checkLoadedPassExists"
                 :disabled="isLoading || loadedCount !== 1"
               >
                 Check Pass Exists (single only)
+              </ion-button>
+            </div>
+
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Wallet Tools (Identifier)</ion-card-title>
+            <ion-card-subtitle>Use passTypeIdentifier and optional serialNumber</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-item class="id-tool-input">
+              <ion-input
+                v-model="passTypeIdentifier"
+                label="passTypeIdentifier"
+                label-placement="stacked"
+                placeholder="pass.com.example.membership"
+              />
+            </ion-item>
+            <ion-item class="id-tool-input">
+              <ion-input
+                v-model="serialNumber"
+                label="serialNumber (optional)"
+                label-placement="stacked"
+                placeholder="ABC-123"
+              />
+            </ion-item>
+            <ion-note class="pane-note">
+              When you load a `.pkpass`, these fields are auto-filled from `pass.json` when available.
+            </ion-note>
+
+            <div class="actions">
+              <ion-button size="small" expand="block" fill="outline" @click="checkCanAddPasses" :disabled="isLoading">
+                canAddPasses
+              </ion-button>
+              <ion-button size="small" expand="block" fill="outline" @click="checkPassExistsById" :disabled="isLoading">
+                passExistsById
+              </ion-button>
+              <ion-button size="small" expand="block" fill="outline" @click="openPassInWalletById" :disabled="isLoading">
+                openPassInWallet
+              </ion-button>
+              <ion-button size="small" expand="block" fill="outline" @click="listWalletPasses" :disabled="isLoading">
+                listPasses
+              </ion-button>
+              <ion-button size="small" expand="block" color="danger" @click="removePassById" :disabled="isLoading">
+                removePass
               </ion-button>
             </div>
           </ion-card-content>
@@ -184,17 +242,24 @@ const {
   resultVersion,
   resultPayload,
   isLoading,
+  passTypeIdentifier,
+  serialNumber,
   loadFromUrl,
   loadFromFiles,
   loadFromExamples,
   loadExampleUrisFromCache,
   addLoadedToWallet,
   checkLoadedPassExists,
+  checkCanAddPasses,
+  checkPassExistsById,
+  openPassInWalletById,
+  removePassById,
+  listWalletPasses,
 } = useWalletActions();
 
 const isToastOpen = ref(false);
 const toastMessage = ref('');
-const sourceMode = ref<'url' | 'file' | 'examples'>('url');
+const sourceMode = ref<'base64' | 'file-uri' | 'file' | 'url'>('base64');
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
 const resultJson = computed(() => JSON.stringify(resultPayload.value, null, 2));
@@ -277,8 +342,12 @@ async function loadCachedExample(value: ExampleKey | 'both') {
 
 .actions {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   margin-top: 12px;
+}
+
+.id-tool-input {
+  margin-top: 8px;
 }
 
 .result {
