@@ -2,6 +2,8 @@
 
 Capacitor plugin to add `.pkpass` files to Apple Wallet.
 
+[![npm downloads](https://img.shields.io/npm/dm/%40belongnet%2Fcapacitor-pass-to-wallet.svg)](https://www.npmjs.com/package/@belongnet/capacitor-pass-to-wallet)
+
 <div align="center">
   <img src="demo.gif" alt="Demo" height="350">
 </div>

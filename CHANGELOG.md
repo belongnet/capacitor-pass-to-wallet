@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v8.0.3
+
+[compare changes](https://github.com/belongnet/capacitor-pass-to-wallet/compare/v8.0.2...v8.0.3)
+
+### 📖 Documentation
+
+- Add npm downloads badge to README ([69e6dd9](https://github.com/belongnet/capacitor-pass-to-wallet/commit/69e6dd9))
+
+### ❤️ Contributors
+
+- Reslear ([@reslear](https://github.com/reslear))
+
 ## v8.0.2
 
 [compare changes](https://github.com/belongnet/capacitor-pass-to-wallet/compare/v8.0.1...v8.0.2)
