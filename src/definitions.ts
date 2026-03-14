@@ -44,6 +44,63 @@ export interface PassExistsResult {
   passExists: boolean;
 }
 
+export interface PassIdentifierOptions {
+  /**
+   * Wallet pass type identifier (for example `pass.com.example.membership`).
+   */
+  passTypeIdentifier: string;
+
+  /**
+   * Optional serial number to target a specific pass instance.
+   */
+  serialNumber?: string;
+}
+
+export interface CanAddPassesResult {
+  /**
+   * `true` when the device can present add-to-wallet flow.
+   */
+  canAddPasses: boolean;
+}
+
+export interface OpenPassInWalletResult {
+  /**
+   * `true` when a matching pass was found and open action was started.
+   */
+  opened: boolean;
+}
+
+export interface RemovePassResult {
+  /**
+   * `true` when a matching pass was removed from wallet.
+   */
+  removed: boolean;
+}
+
+export interface WalletPassSummary {
+  /**
+   * Wallet pass type identifier (for example `pass.com.example.membership`).
+   */
+  passTypeIdentifier: string;
+
+  /**
+   * Pass serial number.
+   */
+  serialNumber: string;
+
+  /**
+   * Organization name from pass payload when available.
+   */
+  organizationName?: string;
+}
+
+export interface ListPassesResult {
+  /**
+   * Passes currently visible in the wallet library.
+   */
+  passes: WalletPassSummary[];
+}
+
 export interface CapacitorPassToWalletPlugin {
   /**
    * Opens Apple Wallet sheet for a single `.pkpass`.
@@ -59,4 +116,29 @@ export interface CapacitorPassToWalletPlugin {
    * Checks whether a pass already exists in Apple Wallet.
    */
   passExists(options: AddToWalletOptions): Promise<PassExistsResult>;
+
+  /**
+   * Checks whether a pass exists by identifier and optional serial number.
+   */
+  _experimental_passExistsById(options: PassIdentifierOptions): Promise<PassExistsResult>;
+
+  /**
+   * Returns whether device can add passes.
+   */
+  _experimental_canAddPasses(): Promise<CanAddPassesResult>;
+
+  /**
+   * Opens an existing pass in Apple Wallet by identifier.
+   */
+  _experimental_openPassInWallet(options: PassIdentifierOptions): Promise<OpenPassInWalletResult>;
+
+  /**
+   * Removes an existing pass from Apple Wallet by identifier.
+   */
+  _experimental_removePass(options: PassIdentifierOptions): Promise<RemovePassResult>;
+
+  /**
+   * Lists wallet passes visible to the app.
+   */
+  _experimental_listPasses(): Promise<ListPassesResult>;
 }

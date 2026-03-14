@@ -1,6 +1,7 @@
 import { CapacitorPassToWallet } from '@belongnet/capacitor-pass-to-wallet';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { computed, ref } from 'vue';
+import JSZip from 'jszip';
 import { fileToBase64, normalizeBase64, passUrlToBase64 } from '../utils/pass';
 
 type ResultPayload = Record<string, unknown>;
@@ -16,12 +17,19 @@ interface UseWalletActionsReturn {
   resultVersion: ReturnType<typeof ref<number>>;
   resultPayload: ReturnType<typeof ref<ResultPayload>>;
   isLoading: ReturnType<typeof ref<boolean>>;
+  passTypeIdentifier: ReturnType<typeof ref<string>>;
+  serialNumber: ReturnType<typeof ref<string>>;
   loadFromUrl: () => Promise<void>;
   loadFromFiles: (files: File[] | FileList | null | undefined) => Promise<void>;
   loadFromExamples: (exampleKeys: ExampleKey[]) => Promise<void>;
   loadExampleUrisFromCache: (exampleKeys: ExampleKey[]) => Promise<void>;
   addLoadedToWallet: () => Promise<void>;
   checkLoadedPassExists: () => Promise<void>;
+  _experimental_checkCanAddPasses: () => Promise<void>;
+  _experimental_checkPassExistsById: () => Promise<void>;
+  _experimental_openPassInWalletById: () => Promise<void>;
+  _experimental_removePassById: () => Promise<void>;
+  _experimental_listWalletPasses: () => Promise<void>;
 }
 
 const EXAMPLE_FILES: Record<ExampleKey, string> = {
@@ -42,6 +50,37 @@ function normalizeList(base64List: string[]): string[] {
   return base64List.map((item) => normalizeBase64(item)).filter(Boolean);
 }
 
+interface PassIdentifierExtracted {
+  passTypeIdentifier?: string;
+  serialNumber?: string;
+}
+
+function base64ToUint8Array(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
+}
+
+async function extractIdentifiersFromBase64(base64: string): Promise<PassIdentifierExtracted> {
+  try {
+    const zip = await JSZip.loadAsync(base64ToUint8Array(normalizeBase64(base64)));
+    const passJsonFile = zip.file('pass.json');
+    if (!passJsonFile) {
+      return {};
+    }
+    const passJson = await passJsonFile.async('string');
+    const parsed = JSON.parse(passJson) as Record<string, unknown>;
+    const passTypeIdentifier = typeof parsed.passTypeIdentifier === 'string' ? parsed.passTypeIdentifier : undefined;
+    const serialNumber = typeof parsed.serialNumber === 'string' ? parsed.serialNumber : undefined;
+    return { passTypeIdentifier, serialNumber };
+  } catch {
+    return {};
+  }
+}
+
 export function useWalletActions(): UseWalletActionsReturn {
   const passUrl = ref('');
   const loadedBase64 = ref<string[]>([]);
@@ -59,6 +98,8 @@ export function useWalletActions(): UseWalletActionsReturn {
       'Wallet actions require iOS device/simulator with Apple Wallet support. Web returns not implemented.',
   });
   const isLoading = ref(false);
+  const passTypeIdentifier = ref('');
+  const serialNumber = ref('');
 
   function setResult(label: string, payload: ResultPayload) {
     resultLabel.value = label;
@@ -100,6 +141,19 @@ export function useWalletActions(): UseWalletActionsReturn {
     loadedSourceLabel.value = sourceLabel;
   }
 
+  async function hydrateIdentifiersFromBase64(base64: string | undefined) {
+    if (!base64) {
+      return;
+    }
+    const extracted = await extractIdentifiersFromBase64(base64);
+    if (extracted.passTypeIdentifier) {
+      passTypeIdentifier.value = extracted.passTypeIdentifier;
+    }
+    if (extracted.serialNumber) {
+      serialNumber.value = extracted.serialNumber;
+    }
+  }
+
   function getLoadedBase64Passes(): string[] {
     const normalized = normalizeList(loadedBase64.value);
     if (!normalized.length) {
@@ -124,11 +178,21 @@ export function useWalletActions(): UseWalletActionsReturn {
     return normalized;
   }
 
+  function getIdentifierOptions() {
+    const passTypeIdentifierValue = validateNonEmpty(passTypeIdentifier.value, 'passTypeIdentifier');
+    const serial = String(serialNumber.value || '').trim();
+    return {
+      passTypeIdentifier: passTypeIdentifierValue,
+      serialNumber: serial || undefined,
+    };
+  }
+
   async function loadFromUrl() {
     await runAction('load(url)', async () => {
       const url = validateNonEmpty(passUrl.value, 'Pass URL');
       const base64 = await passUrlToBase64(url);
       setLoadedPasses([base64], `Loaded from URL: ${url}`);
+      await hydrateIdentifiersFromBase64(base64);
       return { message: 'Loaded 1 pass from URL', url };
     });
   }
@@ -145,6 +209,7 @@ export function useWalletActions(): UseWalletActionsReturn {
         base64List,
         list.length === 1 ? `Loaded from file: ${list[0].name}` : `Loaded from files: ${list.length}`,
       );
+      await hydrateIdentifiersFromBase64(base64List[0]);
       return {
         message: `Loaded ${list.length} file(s)`,
         files: list.map((file) => ({ name: file.name, size: file.size })),
@@ -166,6 +231,7 @@ export function useWalletActions(): UseWalletActionsReturn {
         base64List,
         names.length === 1 ? `Loaded test file: ${names[0]}` : `Loaded test files: ${names.join(', ')}`,
       );
+      await hydrateIdentifiersFromBase64(base64List[0]);
       return {
         message: `Loaded ${keys.length} test file(s)`,
         files: names,
@@ -206,6 +272,11 @@ export function useWalletActions(): UseWalletActionsReturn {
         files.map((item) => item.uri),
         files.length === 1 ? `Loaded file URI from cache: ${files[0].path}` : `Loaded ${files.length} file URIs from cache`,
       );
+      const firstSourceKey = files[0]?.key;
+      if (firstSourceKey) {
+        const firstBase64 = await passUrlToBase64(EXAMPLE_FILES[firstSourceKey]);
+        await hydrateIdentifiersFromBase64(firstBase64);
+      }
 
       return {
         message: `Saved ${files.length} file(s) to cache and loaded as file URI`,
@@ -271,6 +342,65 @@ export function useWalletActions(): UseWalletActionsReturn {
     });
   }
 
+  async function _experimental_checkCanAddPasses() {
+    await runAction('_experimental_canAddPasses', async () => {
+      const result = await CapacitorPassToWallet._experimental_canAddPasses();
+      return {
+        ...result,
+        message: result.canAddPasses
+          ? 'Device can present add pass flow.'
+          : 'Device cannot add passes (Wallet unavailable/restricted).',
+      };
+    });
+  }
+
+  async function _experimental_checkPassExistsById() {
+    await runAction('_experimental_passExistsById', async () => {
+      const options = getIdentifierOptions();
+      const result = await CapacitorPassToWallet._experimental_passExistsById(options);
+      return {
+        ...options,
+        ...result,
+        message: result.passExists ? 'Pass exists in wallet.' : 'Pass not found in wallet.',
+      };
+    });
+  }
+
+  async function _experimental_openPassInWalletById() {
+    await runAction('_experimental_openPassInWallet', async () => {
+      const options = getIdentifierOptions();
+      const result = await CapacitorPassToWallet._experimental_openPassInWallet(options);
+      return {
+        ...options,
+        ...result,
+        message: result.opened ? 'Open wallet action started.' : 'Pass not found or cannot be opened.',
+      };
+    });
+  }
+
+  async function _experimental_removePassById() {
+    await runAction('_experimental_removePass', async () => {
+      const options = getIdentifierOptions();
+      const result = await CapacitorPassToWallet._experimental_removePass(options);
+      return {
+        ...options,
+        ...result,
+        message: result.removed ? 'Pass removed from wallet.' : 'Pass not found, nothing to remove.',
+      };
+    });
+  }
+
+  async function _experimental_listWalletPasses() {
+    await runAction('_experimental_listPasses', async () => {
+      const result = await CapacitorPassToWallet._experimental_listPasses();
+      return {
+        ...result,
+        count: result.passes.length,
+        message: `Found ${result.passes.length} pass(es) in wallet.`,
+      };
+    });
+  }
+
   return {
     passUrl,
     loadedCount,
@@ -280,11 +410,18 @@ export function useWalletActions(): UseWalletActionsReturn {
     resultVersion,
     resultPayload,
     isLoading,
+    passTypeIdentifier,
+    serialNumber,
     loadFromUrl,
     loadFromFiles,
     loadFromExamples,
     loadExampleUrisFromCache,
     addLoadedToWallet,
     checkLoadedPassExists,
+    _experimental_checkCanAddPasses,
+    _experimental_checkPassExistsById,
+    _experimental_openPassInWalletById,
+    _experimental_removePassById,
+    _experimental_listWalletPasses,
   };
 }

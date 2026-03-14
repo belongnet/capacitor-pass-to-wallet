@@ -1,6 +1,7 @@
 import Foundation
 import Capacitor
 import PassKit
+import UIKit
 
 /**
  * Please read the Capacitor iOS Plugin Development Guide
@@ -16,6 +17,7 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
         case unableToPresent
         case noValidPasses
         case allPassesAlreadyExist
+        case missingPassTypeIdentifier
 
         var errorCode: String {
             switch self {
@@ -33,6 +35,8 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
                 return "106"
             case .allPassesAlreadyExist:
                 return "107"
+            case .missingPassTypeIdentifier:
+                return "108"
             }
         }
 
@@ -52,6 +56,8 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
                 return "PKPASSES file has invalid data"
             case .allPassesAlreadyExist:
                 return "All provided passes already exist in Apple Wallet"
+            case .missingPassTypeIdentifier:
+                return "passTypeIdentifier is required"
             }
         }
     }
@@ -62,6 +68,11 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "addToWallet", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "addMultipleToWallet", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "passExists", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_passExistsById", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_canAddPasses", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_openPassInWallet", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_removePass", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_listPasses", returnType: CAPPluginReturnPromise),
     ]
     private let implementation = CapacitorPassToWallet()
 
@@ -115,6 +126,49 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
             throw PluginError.invalidPassData
         }
         return pass
+    }
+
+    private func getIdentifierOptions(from call: CAPPluginCall) throws -> (passTypeIdentifier: String, serialNumber: String?) {
+        let passTypeIdentifier = call.getString("passTypeIdentifier")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if passTypeIdentifier.isEmpty {
+            throw PluginError.missingPassTypeIdentifier
+        }
+
+        let serial = call.getString("serialNumber")?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let serialNumber = serial?.isEmpty == true ? nil : serial
+        return (passTypeIdentifier, serialNumber)
+    }
+
+    private func findPass(passTypeIdentifier: String, serialNumber: String?) -> PKPass? {
+        let library = PKPassLibrary()
+        var combinedPasses = library.passes()
+        combinedPasses.append(contentsOf: library.passes(of: .barcode))
+        combinedPasses.append(contentsOf: library.passes(of: .payment))
+        if #available(iOS 13.4, *) {
+            combinedPasses.append(contentsOf: library.passes(of: .secureElement))
+        }
+        // Deduplicate by pass identity.
+        let allPasses = Array(Dictionary(
+            combinedPasses.map { ("\($0.passTypeIdentifier)|\($0.serialNumber)", $0) },
+            uniquingKeysWith: { first, _ in first }
+        ).values)
+
+        if let serialNumber {
+            if let exactPass = library.pass(withPassTypeIdentifier: passTypeIdentifier, serialNumber: serialNumber) {
+                return exactPass
+            }
+            // Fallback for inconsistent casing from external sources.
+            return allPasses.first(where: { pass in
+                pass.passTypeIdentifier.caseInsensitiveCompare(passTypeIdentifier) == .orderedSame &&
+                    pass.serialNumber.caseInsensitiveCompare(serialNumber) == .orderedSame
+            })
+        }
+        return allPasses.first(where: { pass in
+            if pass.passTypeIdentifier.caseInsensitiveCompare(passTypeIdentifier) != .orderedSame {
+                return false
+            }
+            return true
+        })
     }
 
     @objc func addToWallet(_ call: CAPPluginCall) {
@@ -208,5 +262,100 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
         } catch {
             reject(call, error)
         }
+    }
+
+    @objc func _experimental_canAddPasses(_ call: CAPPluginCall) {
+        call.resolve([
+            "canAddPasses": PKAddPassesViewController.canAddPasses()
+        ])
+    }
+
+    @objc func _experimental_passExistsById(_ call: CAPPluginCall) {
+        do {
+            let options = try getIdentifierOptions(from: call)
+            let pass = findPass(passTypeIdentifier: options.passTypeIdentifier, serialNumber: options.serialNumber)
+            call.resolve([
+                "passExists": pass != nil
+            ])
+        } catch {
+            reject(call, error)
+        }
+    }
+
+    @objc func _experimental_openPassInWallet(_ call: CAPPluginCall) {
+        do {
+            let options = try getIdentifierOptions(from: call)
+            guard let pass = findPass(passTypeIdentifier: options.passTypeIdentifier, serialNumber: options.serialNumber),
+                  let url = pass.passURL else {
+                call.resolve([
+                    "opened": false
+                ])
+                return
+            }
+
+            DispatchQueue.main.async {
+                if #available(iOS 10.0, *) {
+                    UIApplication.shared.open(url, options: [:]) { success in
+                        call.resolve([
+                            "opened": success
+                        ])
+                    }
+                } else {
+                    let success = UIApplication.shared.canOpenURL(url)
+                    if success {
+                        UIApplication.shared.openURL(url)
+                    }
+                    call.resolve([
+                        "opened": success
+                    ])
+                }
+            }
+        } catch {
+            reject(call, error)
+        }
+    }
+
+    @objc func _experimental_removePass(_ call: CAPPluginCall) {
+        do {
+            let options = try getIdentifierOptions(from: call)
+            guard let pass = findPass(passTypeIdentifier: options.passTypeIdentifier, serialNumber: options.serialNumber) else {
+                call.resolve([
+                    "removed": false
+                ])
+                return
+            }
+
+            PKPassLibrary().removePass(pass)
+            call.resolve([
+                "removed": true
+            ])
+        } catch {
+            reject(call, error)
+        }
+    }
+
+    @objc func _experimental_listPasses(_ call: CAPPluginCall) {
+        let library = PKPassLibrary()
+        var combinedPasses = library.passes()
+        combinedPasses.append(contentsOf: library.passes(of: .barcode))
+        combinedPasses.append(contentsOf: library.passes(of: .payment))
+        if #available(iOS 13.4, *) {
+            combinedPasses.append(contentsOf: library.passes(of: .secureElement))
+        }
+        let uniquePasses = Array(Dictionary(
+            combinedPasses.map { ("\($0.passTypeIdentifier)|\($0.serialNumber)", $0) },
+            uniquingKeysWith: { first, _ in first }
+        ).values)
+
+        let passes = uniquePasses.map { pass in
+            return [
+                "passTypeIdentifier": pass.passTypeIdentifier,
+                "serialNumber": pass.serialNumber,
+                "organizationName": pass.organizationName
+            ]
+        }
+        call.resolve([
+            "passes": passes
+        ])
     }
 }
