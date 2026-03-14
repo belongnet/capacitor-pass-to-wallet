@@ -68,11 +68,11 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "addToWallet", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "addMultipleToWallet", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "passExists", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "passExistsById", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "canAddPasses", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "openPassInWallet", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "removePass", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "listPasses", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_passExistsById", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_canAddPasses", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_openPassInWallet", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_removePass", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "_experimental_listPasses", returnType: CAPPluginReturnPromise),
     ]
     private let implementation = CapacitorPassToWallet()
 
@@ -264,13 +264,13 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    @objc func canAddPasses(_ call: CAPPluginCall) {
+    @objc func _experimental_canAddPasses(_ call: CAPPluginCall) {
         call.resolve([
             "canAddPasses": PKAddPassesViewController.canAddPasses()
         ])
     }
 
-    @objc func passExistsById(_ call: CAPPluginCall) {
+    @objc func _experimental_passExistsById(_ call: CAPPluginCall) {
         do {
             let options = try getIdentifierOptions(from: call)
             let pass = findPass(passTypeIdentifier: options.passTypeIdentifier, serialNumber: options.serialNumber)
@@ -282,7 +282,7 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    @objc func openPassInWallet(_ call: CAPPluginCall) {
+    @objc func _experimental_openPassInWallet(_ call: CAPPluginCall) {
         do {
             let options = try getIdentifierOptions(from: call)
             guard let pass = findPass(passTypeIdentifier: options.passTypeIdentifier, serialNumber: options.serialNumber),
@@ -315,7 +315,7 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    @objc func removePass(_ call: CAPPluginCall) {
+    @objc func _experimental_removePass(_ call: CAPPluginCall) {
         do {
             let options = try getIdentifierOptions(from: call)
             guard let pass = findPass(passTypeIdentifier: options.passTypeIdentifier, serialNumber: options.serialNumber) else {
@@ -334,7 +334,7 @@ public class CapacitorPassToWalletPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    @objc func listPasses(_ call: CAPPluginCall) {
+    @objc func _experimental_listPasses(_ call: CAPPluginCall) {
         let library = PKPassLibrary()
         var combinedPasses = library.passes()
         combinedPasses.append(contentsOf: library.passes(of: .barcode))

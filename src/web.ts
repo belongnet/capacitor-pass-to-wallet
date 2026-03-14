@@ -3,7 +3,7 @@ import { WebPlugin } from '@capacitor/core';
 import type { CapacitorPassToWalletPlugin } from './definitions';
 
 export class CapacitorPassToWalletWeb extends WebPlugin implements CapacitorPassToWalletPlugin {
-  canAddPasses(): Promise<{ canAddPasses: boolean }> {
+  _experimental_canAddPasses(): Promise<{ canAddPasses: boolean }> {
     throw new Error('Method not implemented on web.');
   }
   addMultipleToWallet(options: { base64?: string[]; filePaths?: string[] }): Promise<{ value: string }> {
@@ -18,19 +18,19 @@ export class CapacitorPassToWalletWeb extends WebPlugin implements CapacitorPass
     console.log(options.base64, options.filePath, 'Method not implemented on web.');
     throw new Error('Method not implemented on web.');
   }
-  passExistsById(options: { passTypeIdentifier: string; serialNumber?: string }): Promise<{ passExists: boolean }> {
+  _experimental_passExistsById(options: { passTypeIdentifier: string; serialNumber?: string }): Promise<{ passExists: boolean }> {
     console.log(options.passTypeIdentifier, options.serialNumber, 'Method not implemented on web.');
     throw new Error('Method not implemented on web.');
   }
-  openPassInWallet(options: { passTypeIdentifier: string; serialNumber?: string }): Promise<{ opened: boolean }> {
+  _experimental_openPassInWallet(options: { passTypeIdentifier: string; serialNumber?: string }): Promise<{ opened: boolean }> {
     console.log(options.passTypeIdentifier, options.serialNumber, 'Method not implemented on web.');
     throw new Error('Method not implemented on web.');
   }
-  removePass(options: { passTypeIdentifier: string; serialNumber?: string }): Promise<{ removed: boolean }> {
+  _experimental_removePass(options: { passTypeIdentifier: string; serialNumber?: string }): Promise<{ removed: boolean }> {
     console.log(options.passTypeIdentifier, options.serialNumber, 'Method not implemented on web.');
     throw new Error('Method not implemented on web.');
   }
-  listPasses(): Promise<{ passes: Array<{ passTypeIdentifier: string; serialNumber: string; organizationName?: string }> }> {
+  _experimental_listPasses(): Promise<{ passes: Array<{ passTypeIdentifier: string; serialNumber: string; organizationName?: string }> }> {
     throw new Error('Method not implemented on web.');
   }
 }

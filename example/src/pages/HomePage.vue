@@ -156,20 +156,20 @@
             </ion-note>
 
             <div class="actions">
-              <ion-button size="small" expand="block" fill="outline" @click="checkCanAddPasses" :disabled="isLoading">
-                canAddPasses
+              <ion-button size="small" expand="block" fill="outline" @click="_experimental_checkCanAddPasses" :disabled="isLoading">
+                _experimental_canAddPasses
               </ion-button>
-              <ion-button size="small" expand="block" fill="outline" @click="checkPassExistsById" :disabled="isLoading">
-                passExistsById
+              <ion-button size="small" expand="block" fill="outline" @click="_experimental_checkPassExistsById" :disabled="isLoading">
+                _experimental_passExistsById
               </ion-button>
-              <ion-button size="small" expand="block" fill="outline" @click="openPassInWalletById" :disabled="isLoading">
-                openPassInWallet
+              <ion-button size="small" expand="block" fill="outline" @click="_experimental_openPassInWalletById" :disabled="isLoading">
+                _experimental_openPassInWallet
               </ion-button>
-              <ion-button size="small" expand="block" fill="outline" @click="listWalletPasses" :disabled="isLoading">
-                listPasses
+              <ion-button size="small" expand="block" fill="outline" @click="_experimental_listWalletPasses" :disabled="isLoading">
+                _experimental_listPasses
               </ion-button>
-              <ion-button size="small" expand="block" color="danger" @click="removePassById" :disabled="isLoading">
-                removePass
+              <ion-button size="small" expand="block" color="danger" @click="_experimental_removePassById" :disabled="isLoading">
+                _experimental_removePass
               </ion-button>
             </div>
           </ion-card-content>
@@ -250,11 +250,11 @@ const {
   loadExampleUrisFromCache,
   addLoadedToWallet,
   checkLoadedPassExists,
-  checkCanAddPasses,
-  checkPassExistsById,
-  openPassInWalletById,
-  removePassById,
-  listWalletPasses,
+  _experimental_checkCanAddPasses,
+  _experimental_checkPassExistsById,
+  _experimental_openPassInWalletById,
+  _experimental_removePassById,
+  _experimental_listWalletPasses,
 } = useWalletActions();
 
 const isToastOpen = ref(false);

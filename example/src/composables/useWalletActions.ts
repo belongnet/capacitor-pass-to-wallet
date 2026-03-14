@@ -25,11 +25,11 @@ interface UseWalletActionsReturn {
   loadExampleUrisFromCache: (exampleKeys: ExampleKey[]) => Promise<void>;
   addLoadedToWallet: () => Promise<void>;
   checkLoadedPassExists: () => Promise<void>;
-  checkCanAddPasses: () => Promise<void>;
-  checkPassExistsById: () => Promise<void>;
-  openPassInWalletById: () => Promise<void>;
-  removePassById: () => Promise<void>;
-  listWalletPasses: () => Promise<void>;
+  _experimental_checkCanAddPasses: () => Promise<void>;
+  _experimental_checkPassExistsById: () => Promise<void>;
+  _experimental_openPassInWalletById: () => Promise<void>;
+  _experimental_removePassById: () => Promise<void>;
+  _experimental_listWalletPasses: () => Promise<void>;
 }
 
 const EXAMPLE_FILES: Record<ExampleKey, string> = {
@@ -342,9 +342,9 @@ export function useWalletActions(): UseWalletActionsReturn {
     });
   }
 
-  async function checkCanAddPasses() {
-    await runAction('canAddPasses', async () => {
-      const result = await CapacitorPassToWallet.canAddPasses();
+  async function _experimental_checkCanAddPasses() {
+    await runAction('_experimental_canAddPasses', async () => {
+      const result = await CapacitorPassToWallet._experimental_canAddPasses();
       return {
         ...result,
         message: result.canAddPasses
@@ -354,10 +354,10 @@ export function useWalletActions(): UseWalletActionsReturn {
     });
   }
 
-  async function checkPassExistsById() {
-    await runAction('passExistsById', async () => {
+  async function _experimental_checkPassExistsById() {
+    await runAction('_experimental_passExistsById', async () => {
       const options = getIdentifierOptions();
-      const result = await CapacitorPassToWallet.passExistsById(options);
+      const result = await CapacitorPassToWallet._experimental_passExistsById(options);
       return {
         ...options,
         ...result,
@@ -366,10 +366,10 @@ export function useWalletActions(): UseWalletActionsReturn {
     });
   }
 
-  async function openPassInWalletById() {
-    await runAction('openPassInWallet', async () => {
+  async function _experimental_openPassInWalletById() {
+    await runAction('_experimental_openPassInWallet', async () => {
       const options = getIdentifierOptions();
-      const result = await CapacitorPassToWallet.openPassInWallet(options);
+      const result = await CapacitorPassToWallet._experimental_openPassInWallet(options);
       return {
         ...options,
         ...result,
@@ -378,10 +378,10 @@ export function useWalletActions(): UseWalletActionsReturn {
     });
   }
 
-  async function removePassById() {
-    await runAction('removePass', async () => {
+  async function _experimental_removePassById() {
+    await runAction('_experimental_removePass', async () => {
       const options = getIdentifierOptions();
-      const result = await CapacitorPassToWallet.removePass(options);
+      const result = await CapacitorPassToWallet._experimental_removePass(options);
       return {
         ...options,
         ...result,
@@ -390,9 +390,9 @@ export function useWalletActions(): UseWalletActionsReturn {
     });
   }
 
-  async function listWalletPasses() {
-    await runAction('listPasses', async () => {
-      const result = await CapacitorPassToWallet.listPasses();
+  async function _experimental_listWalletPasses() {
+    await runAction('_experimental_listPasses', async () => {
+      const result = await CapacitorPassToWallet._experimental_listPasses();
       return {
         ...result,
         count: result.passes.length,
@@ -418,10 +418,10 @@ export function useWalletActions(): UseWalletActionsReturn {
     loadExampleUrisFromCache,
     addLoadedToWallet,
     checkLoadedPassExists,
-    checkCanAddPasses,
-    checkPassExistsById,
-    openPassInWalletById,
-    removePassById,
-    listWalletPasses,
+    _experimental_checkCanAddPasses,
+    _experimental_checkPassExistsById,
+    _experimental_openPassInWalletById,
+    _experimental_removePassById,
+    _experimental_listWalletPasses,
   };
 }

@@ -120,25 +120,25 @@ export interface CapacitorPassToWalletPlugin {
   /**
    * Checks whether a pass exists by identifier and optional serial number.
    */
-  passExistsById(options: PassIdentifierOptions): Promise<PassExistsResult>;
+  _experimental_passExistsById(options: PassIdentifierOptions): Promise<PassExistsResult>;
 
   /**
    * Returns whether device can add passes.
    */
-  canAddPasses(): Promise<CanAddPassesResult>;
+  _experimental_canAddPasses(): Promise<CanAddPassesResult>;
 
   /**
    * Opens an existing pass in Apple Wallet by identifier.
    */
-  openPassInWallet(options: PassIdentifierOptions): Promise<OpenPassInWalletResult>;
+  _experimental_openPassInWallet(options: PassIdentifierOptions): Promise<OpenPassInWalletResult>;
 
   /**
    * Removes an existing pass from Apple Wallet by identifier.
    */
-  removePass(options: PassIdentifierOptions): Promise<RemovePassResult>;
+  _experimental_removePass(options: PassIdentifierOptions): Promise<RemovePassResult>;
 
   /**
    * Lists wallet passes visible to the app.
    */
-  listPasses(): Promise<ListPassesResult>;
+  _experimental_listPasses(): Promise<ListPassesResult>;
 }

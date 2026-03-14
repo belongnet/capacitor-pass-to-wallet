@@ -104,11 +104,11 @@ console.log(result.passExists);
 * [`addToWallet(...)`](#addtowallet)
 * [`addMultipleToWallet(...)`](#addmultipletowallet)
 * [`passExists(...)`](#passexists)
-* [`passExistsById(...)`](#passexistsbyid)
-* [`canAddPasses()`](#canaddpasses)
-* [`openPassInWallet(...)`](#openpassinwallet)
-* [`removePass(...)`](#removepass)
-* [`listPasses()`](#listpasses)
+* [`_experimental_passExistsById(...)`](#_experimental_passexistsbyid)
+* [`_experimental_canAddPasses()`](#_experimental_canaddpasses)
+* [`_experimental_openPassInWallet(...)`](#_experimental_openpassinwallet)
+* [`_experimental_removePass(...)`](#_experimental_removepass)
+* [`_experimental_listPasses()`](#_experimental_listpasses)
 * [Interfaces](#interfaces)
 
 </docgen-index>
@@ -167,10 +167,10 @@ Checks whether a pass already exists in Apple Wallet.
 --------------------
 
 
-### passExistsById(...)
+### _experimental_passExistsById(...)
 
 ```typescript
-passExistsById(options: PassIdentifierOptions) => Promise<PassExistsResult>
+_experimental_passExistsById(options: PassIdentifierOptions) => Promise<PassExistsResult>
 ```
 
 Checks whether a pass exists by identifier and optional serial number.
@@ -184,10 +184,10 @@ Checks whether a pass exists by identifier and optional serial number.
 --------------------
 
 
-### canAddPasses()
+### _experimental_canAddPasses()
 
 ```typescript
-canAddPasses() => Promise<CanAddPassesResult>
+_experimental_canAddPasses() => Promise<CanAddPassesResult>
 ```
 
 Returns whether device can add passes.
@@ -197,10 +197,10 @@ Returns whether device can add passes.
 --------------------
 
 
-### openPassInWallet(...)
+### _experimental_openPassInWallet(...)
 
 ```typescript
-openPassInWallet(options: PassIdentifierOptions) => Promise<OpenPassInWalletResult>
+_experimental_openPassInWallet(options: PassIdentifierOptions) => Promise<OpenPassInWalletResult>
 ```
 
 Opens an existing pass in Apple Wallet by identifier.
@@ -214,10 +214,10 @@ Opens an existing pass in Apple Wallet by identifier.
 --------------------
 
 
-### removePass(...)
+### _experimental_removePass(...)
 
 ```typescript
-removePass(options: PassIdentifierOptions) => Promise<RemovePassResult>
+_experimental_removePass(options: PassIdentifierOptions) => Promise<RemovePassResult>
 ```
 
 Removes an existing pass from Apple Wallet by identifier.
@@ -231,10 +231,10 @@ Removes an existing pass from Apple Wallet by identifier.
 --------------------
 
 
-### listPasses()
+### _experimental_listPasses()
 
 ```typescript
-listPasses() => Promise<ListPassesResult>
+_experimental_listPasses() => Promise<ListPassesResult>
 ```
 
 Lists wallet passes visible to the app.
