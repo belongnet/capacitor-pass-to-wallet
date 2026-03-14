@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v8.0.4
+
+[compare changes](https://github.com/belongnet/capacitor-pass-to-wallet/compare/v8.0.3...v8.0.4)
+
+### 🚀 Enhancements
+
+- New experimental features ([#5](https://github.com/belongnet/capacitor-pass-to-wallet/pull/5))
+
+### 🏡 Chore
+
+- Update publish.yml to include paths for workflow ([5ebb9e5](https://github.com/belongnet/capacitor-pass-to-wallet/commit/5ebb9e5))
+
+### ❤️ Contributors
+
+- Reslear ([@reslear](https://github.com/reslear))
+
 ## v8.0.3
 
 [compare changes](https://github.com/belongnet/capacitor-pass-to-wallet/compare/v8.0.2...v8.0.3)
